@@ -26,7 +26,7 @@ class HopfieldNetwork:
                 for j in range(self.num_neurons):
                     if i != j:
                         self.weights[i, j] += pattern[j] * (pattern[i] - weights[i, j] * pattern[j])
-            self.weights /= len(patterns)
+        self.weights /= len(patterns)
 
     def recall(self, pattern, max_iters=100):
         if pattern.shape != (self.num_neurons,):
