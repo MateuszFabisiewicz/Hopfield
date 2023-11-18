@@ -46,7 +46,7 @@ class HopfieldNetwork:
         
         neuron_order = list(range(self.num_neurons))
         for _ in range(max_iters):
-            new_pattern = pattern
+            new_pattern = pattern.copy()
             for neuron in neuron_order:
                 new_pattern[neuron] = np.sign(np.dot(self.weights[neuron], new_pattern))
             
