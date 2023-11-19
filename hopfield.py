@@ -16,17 +16,20 @@ class HopfieldNetwork:
             np.fill_diagonal(self.weights, 0)
         self.weights = self.weights / len(patterns)
 
-    def train_oja(self, patterns):
-        for pattern in patterns:
-            if pattern.shape != (self.num_neurons,):
-                raise ValueError("Pattern shape does not match network size.")
-            
+    def train_oja(self, patterns, iterations = 10):
+
+        for i in range(iterations):
             weights = self.weights.copy()
-            for i in range(self.num_neurons):
-                for j in range(self.num_neurons):
-                    if i != j:
-                        self.weights[i, j] += pattern[j] * (pattern[i] - weights[i, j] * pattern[j])
-        self.weights /= len(patterns)
+            self.weights = np.zeros((self.num_neurons, self.num_neurons))
+            for pattern in patterns:
+                if pattern.shape != (self.num_neurons,):
+                    raise ValueError("Pattern shape does not match network size.")
+                
+                for i in range(self.num_neurons):
+                    for j in range(self.num_neurons):
+                        if i != j:
+                            self.weights[i, j] += pattern[j] * (pattern[i] - weights[i, j] * pattern[j])
+            self.weights /= len(patterns)
 
     def recall(self, pattern, max_iters=100):
         if pattern.shape != (self.num_neurons,):
@@ -35,10 +38,19 @@ class HopfieldNetwork:
         for _ in range(max_iters):
             new_pattern = np.sign(np.dot(self.weights, pattern))
             if np.array_equal(new_pattern, pattern):
-                return (new_pattern, True)
+                return new_pattern
             pattern = new_pattern
         
-        return (pattern, False)
+        return pattern
+    
+    def is_stable(self, pattern):
+        if pattern.shape != (self.num_neurons,):
+            raise ValueError("Pattern shape does not match network size.")
+        
+        new_pattern = np.sign(np.dot(self.weights, pattern))
+        if np.array_equal(new_pattern, pattern):
+            return True
+        return False
     
     def recall_async(self, pattern, max_iters=100):
         if pattern.shape != (self.num_neurons,):
@@ -46,15 +58,28 @@ class HopfieldNetwork:
         
         neuron_order = list(range(self.num_neurons))
         for _ in range(max_iters):
-            new_pattern = pattern
+            new_pattern = pattern.copy()
             for neuron in neuron_order:
                 new_pattern[neuron] = np.sign(np.dot(self.weights[neuron], new_pattern))
             
             if np.array_equal(new_pattern, pattern):
-                return (new_pattern, True)
+                return new_pattern
             pattern = new_pattern
 
-        return (pattern, False)
+        return pattern
+    
+    def is_stable_async(self, pattern):
+        if pattern.shape != (self.num_neurons,):
+            raise ValueError("Pattern shape does not match network size.")
+        
+        neuron_order = list(range(self.num_neurons))
+        new_pattern = pattern.copy()
+        for neuron in neuron_order:
+            new_pattern[neuron] = np.sign(np.dot(self.weights[neuron], new_pattern))
+
+        if np.array_equal(new_pattern, pattern):
+            return True
+        return False
 
     
     def plot_patterns_as_bitmap(self, patterns, image_size=(32, 32), save_path='patterns.bmp'):
