@@ -31,12 +31,15 @@ class HopfieldNetwork:
                             self.weights[i, j] += pattern[j] * (pattern[i] - weights[i, j] * pattern[j])
             self.weights /= len(patterns)
 
-    def recall(self, pattern, max_iters=100):
+    def recall(self, pattern, max_iters=100, show_details = False):
         if pattern.shape != (self.num_neurons,):
             raise ValueError("Pattern shape does not match network size.")
         
         for _ in range(max_iters):
-            new_pattern = np.sign(np.dot(self.weights, pattern))
+            weighted_sum = np.dot(self.weights, pattern)
+            new_pattern = np.sign(weighted_sum) + (weighted_sum==0) 
+            if(show_details):
+                print(new_pattern)
             if np.array_equal(new_pattern, pattern):
                 return new_pattern
             pattern = new_pattern
@@ -47,12 +50,13 @@ class HopfieldNetwork:
         if pattern.shape != (self.num_neurons,):
             raise ValueError("Pattern shape does not match network size.")
         
-        new_pattern = np.sign(np.dot(self.weights, pattern))
+        weighted_sum = np.dot(self.weights, pattern)
+        new_pattern = np.sign(weighted_sum) + (weighted_sum==0) 
         if np.array_equal(new_pattern, pattern):
             return True
         return False
     
-    def recall_async(self, pattern, max_iters=100):
+    def recall_async(self, pattern, max_iters=100, show_details=False):
         if pattern.shape != (self.num_neurons,):
             raise ValueError("Pattern shape does not match network size.")
         
@@ -60,8 +64,11 @@ class HopfieldNetwork:
         for _ in range(max_iters):
             new_pattern = pattern.copy()
             for neuron in neuron_order:
-                new_pattern[neuron] = np.sign(np.dot(self.weights[neuron], new_pattern))
+                weighted_sum = np.dot(self.weights[neuron], new_pattern)
+                new_pattern[neuron] = np.sign(weighted_sum) + (weighted_sum == 0)
             
+            if(show_details):
+                print(new_pattern)
             if np.array_equal(new_pattern, pattern):
                 return new_pattern
             pattern = new_pattern
@@ -75,7 +82,8 @@ class HopfieldNetwork:
         neuron_order = list(range(self.num_neurons))
         new_pattern = pattern.copy()
         for neuron in neuron_order:
-            new_pattern[neuron] = np.sign(np.dot(self.weights[neuron], new_pattern))
+            weighted_sum = np.dot(self.weights[neuron], new_pattern)
+            new_pattern[neuron] = np.sign(weighted_sum) + (weighted_sum == 0)
 
         if np.array_equal(new_pattern, pattern):
             return True
@@ -94,6 +102,9 @@ class HopfieldNetwork:
             row = i // cols
             col = i % cols
             bitmap[row * pattern_size:(row + 1) * pattern_size, col * pattern_size:(col + 1) * pattern_size] = pattern
+        
+        plt.imsave(save_path, bitmap, cmap='gray')
+        plt.show()
         
         plt.imsave(save_path, bitmap, cmap='gray')
         plt.show()
