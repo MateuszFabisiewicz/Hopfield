@@ -61,7 +61,7 @@ class HopfieldNetwork:
             return True
         return False
     
-    def recall_async(self, pattern, max_iters=100, show_details=False):
+    def recall_async(self, pattern, max_iters=100, show_details=False, plotShape = None):
         if pattern.shape != (self.num_neurons,):
             raise ValueError("Pattern shape does not match network size.")
         
@@ -71,7 +71,9 @@ class HopfieldNetwork:
             for neuron in neuron_order:
                 weighted_sum = np.dot(self.weights[neuron], new_pattern)
                 new_pattern[neuron] = np.sign(weighted_sum) + (weighted_sum == 0)
-            
+                
+            if(plotShape):
+                self.plot_patterns_as_bitmap(new_pattern, plotShape)
             if(show_details):
                 print(new_pattern)
             if np.array_equal(new_pattern, pattern):
