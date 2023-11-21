@@ -98,7 +98,7 @@ class HopfieldNetwork:
 
     
     def plot_patterns_as_bitmap(self, pattern, shape):
-        fig = plt.figure(figsize=(shape[0]/5,shape[1]/5))
+        fig = plt.figure(figsize=(shape[1]/5,shape[0]/5))
         pattern_array = np.array(pattern)
         pattern_array = pattern_array.reshape(shape)
         bitmap = np.where(pattern_array == 1, 255, 0)

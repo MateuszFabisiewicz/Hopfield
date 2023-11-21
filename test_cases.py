@@ -9,6 +9,6 @@ class TestCase:
         self.patterns = data.to_numpy()
         match = re.search(r'-(\d+)x(\d+)', filename)
         if match:
-            self.shape = (int(match.group(1)), (int(match.group(2))))
+            self.shape = (int(match.group(2)), (int(match.group(1))))
         else:
             raise ValueError("Invalid file name.")
